@@ -17,3 +17,6 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-paygate-activator.php';
 
 // Register activation hook
 register_activation_hook(__FILE__, ['Paygate_Activator', 'activate']);
+
+require_once plugin_dir_path(__FILE__) . 'includes/admin/class-paygate-admin-menu.php';
+new Paygate_Admin_Menu();
