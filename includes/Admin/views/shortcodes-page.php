@@ -16,8 +16,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_admin_referer('paygate_save_s
     }
 }
 
-if (isset($_GET['delete'])) {
-    $wpdb->delete($table, ['id' => intval($_GET['delete'])]);
+if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+    $shortcode_id = intval($_GET['delete']);
+    $nonce_action = 'paygate_delete_shortcode_' . $shortcode_id;
+
+    if (isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], $nonce_action)) {
+        $deleted = $wpdb->delete($table, ['id' => $shortcode_id]);
+
+        if ($deleted !== false) {
+            wp_redirect(admin_url('admin.php?page=paygate-shortcodes&deleted=1'));
+            exit;
+        } else {
+            echo '<div class="notice notice-error"><p>Failed to delete shortcode.</p></div>';
+        }
+    } else {
+        echo '<div class="notice notice-error"><p>Security check failed. Invalid nonce.</p></div>';
+    }
+}
+
+if (isset($_GET['deleted'])) {
+    echo '<div class="notice notice-success"><p>Shortcode deleted successfully.</p></div>';
 }
 
 $shortcodes = $wpdb->get_results("SELECT * FROM {$table} ORDER BY id DESC");
@@ -68,7 +86,14 @@ $shortcodes = $wpdb->get_results("SELECT * FROM {$table} ORDER BY id DESC");
                     <td><?php echo esc_html($shortcode->button_text); ?></td>
                     <td><?php echo esc_html($shortcode->product_name); ?></td>
                     <td><code>[paygate slug="<?php echo esc_attr($shortcode->slug); ?>"]</code></td>
-                    <td><a href="?page=paygate-shortcodes&delete=<?php echo esc_attr($shortcode->id); ?>" onclick="return confirm('Delete this shortcode?');">Delete</a></td>
+                    <td>
+                        <a href="<?php echo esc_url(
+                                        wp_nonce_url(
+                                            admin_url('admin.php?page=paygate-shortcodes&delete=' . esc_attr($shortcode->id)),
+                                            'paygate_delete_shortcode_' . $shortcode->id
+                                        )
+                                    ); ?>" onclick="return confirm('Delete this shortcode?');">Delete</a>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

@@ -38,9 +38,9 @@ class Paygate_Activator
 
         $sql_shortcodes = "CREATE TABLE {$shortcodes_table} (
             id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-            shortcode_slug VARCHAR(100) NOT NULL UNIQUE,
-            button_text VARCHAR(255) NOT NULL,
-            initiation_endpoint VARCHAR(255) NOT NULL,
+            slug VARCHAR(100) NOT NULL UNIQUE,
+            button_text VARCHAR(255) NULL,
+            initiation_endpoint VARCHAR(255) NULL,
             product_name VARCHAR(255) DEFAULT NULL,
             additional_payload TEXT DEFAULT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
