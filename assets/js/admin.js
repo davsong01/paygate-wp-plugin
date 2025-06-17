@@ -17,7 +17,7 @@ jQuery(function ($) {
         },
         columns: [
             { data: 'name' },
-            { data: 'slug' },
+            { data: 'sku' },
             { data: 'price' },
             { data: 'in_stock' },
             { data: 'status' },
@@ -103,22 +103,28 @@ jQuery(function ($) {
             });
     });
 
-    // Show alert
     function showAlert(type, message) {
-        alertEl
-            .removeClass('d-none alert-success alert-danger alert-warning alert-info show')
-            .addClass(`alert alert-${type} alert-dismissible fade show`)
-            .removeAttr('style');
-
-        alertMsg.html(message);
-
+        const $alert = $('#paygate-alert');
+    
+        $alert.removeClass('d-none alert-success alert-danger alert-warning alert-info show')
+            .addClass(`alert-${type}`)
+            .find('#paygate-alert-message').html(message);
+    
+        // Re-show with fade animation
+        setTimeout(() => $alert.addClass('show'), 10);
+    
+        // Scroll into view
+        $('html, body').animate({
+            scrollTop: $alert.offset().top - 100 // adjust offset as needed
+        }, 400);
+    
+        // Auto-hide after 5 seconds
         setTimeout(() => {
-            if (alertEl.hasClass('show')) {
-                const bsAlert = bootstrap.Alert.getOrCreateInstance(alertEl[0]);
-                bsAlert.close();
-            }
+            $alert.removeClass('show');
+            setTimeout(() => $alert.addClass('d-none'), 300); // wait for fade-out
         }, 5000);
     }
+    
 
     // Optional slugify function (if needed)
     function slugify(text) {

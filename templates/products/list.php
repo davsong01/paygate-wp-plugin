@@ -7,7 +7,8 @@
             <thead class="table-light">
                 <tr>
                     <th>Name</th>
-                    <th>Slug</th>
+                    <!-- <th>Slug</th> -->
+                    <th>SKU</th>
                     <th>Price</th>
                     <th>Stock</th>
                     <th>Status</th>
