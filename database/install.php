@@ -20,6 +20,7 @@ class Installer
             id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
             slug VARCHAR(255) UNIQUE NOT NULL,
+            sku VARCHAR(255) UNIQUE NOT NULL,
             price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
             in_stock INT NOT NULL DEFAULT 0,
             status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',

@@ -13,6 +13,10 @@
 
 defined('ABSPATH') || exit;
 
+if (! defined('PAYGATE_PATH')) {
+    define('PAYGATE_PATH', plugin_dir_path(__FILE__));
+}
+
 require_once __DIR__ . '/core/Loader.php';
 (new \PayGate\Core\Loader())->init();
 
