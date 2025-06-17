@@ -1,0 +1,9 @@
+#productsTable td,
+#productsTable th {
+    vertical-align: middle;
+}
+
+#productModal .modal-header {
+    background-color: #f6f7f7;
+    border-bottom: 1px solid #ccd0d4;
+}

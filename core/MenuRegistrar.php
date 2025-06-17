@@ -63,7 +63,7 @@ class MenuRegistrar
     public function renderDashboard()
     {
         echo '<h2>PayGate Accountant Dashboard</h2>';
-        echo '<p>Welcome. Use the sidebar to manage Products, Customers, Transactions, and Settings.</p>';
+        echo '<p>Welcome. Use the sidebar to manage Products, Customers, Transactions, and Settings and more</p>';
     }
 
     public function renderProducts()
