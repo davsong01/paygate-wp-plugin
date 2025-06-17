@@ -10,13 +10,16 @@
  * Domain Path: /languages
  */
 
+
 defined('ABSPATH') || exit;
 
-// Load activator
-require_once plugin_dir_path(__FILE__) . 'includes/class-paygate-activator.php';
+require_once __DIR__ . '/core/Loader.php';
+(new \PayGate\Core\Loader())->init();
 
-// Register activation hook
-register_activation_hook(__FILE__, ['Paygate_Activator', 'activate']);
+register_activation_hook(__FILE__, 'paygate_plugin_activate');
 
-require_once plugin_dir_path(__FILE__) . 'includes/admin/class-paygate-admin-menu.php';
-new Paygate_Admin_Menu();
+function paygate_plugin_activate()
+{
+    require_once __DIR__ . '/database/install.php';
+    \PayGate\Database\Installer::install();
+}
