@@ -6,16 +6,6 @@ defined('ABSPATH') || exit;
 
 class Loader
 {
-    // public function init()
-    // {
-    //     // Load menus
-    //     require_once __DIR__ . '/MenuRegistrar.php';
-    //     require_once __DIR__ . '/../controllers/ProductController.php';
-    //     new \PayGate\Controllers\ProductController();
-    //     (new MenuRegistrar())->register();
-    //     add_action('admin_enqueue_scripts', [$this, 'enqueueAssets']);
-    //     require_once plugin_dir_path(__FILE__) . '/../ajax/product-actions.php';
-    // }
 
     public function init()
     {
@@ -26,7 +16,9 @@ class Loader
 
         add_action('admin_init', function () {
             require_once plugin_dir_path(__FILE__) . '/../ajax/product-actions.php';
+            require_once plugin_dir_path(__FILE__) . '/../ajax/customer-actions.php';
         });
+        
     }
 
     public function enqueueAssets()
