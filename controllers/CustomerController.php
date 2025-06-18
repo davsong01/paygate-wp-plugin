@@ -2,6 +2,8 @@
 
 namespace PayGate\Controllers;
 
+use PayGate\Controllers\PaygateController;
+
 defined('ABSPATH') || exit;
 
 class CustomerController {
@@ -39,7 +41,31 @@ class CustomerController {
             wp_send_json_error(['message' => 'Customer with this email already exists.']);
         }
 
-        $data = [
+        $basicData = [
+            // "customer_ref": "2348033000989",
+            // "firstname": "John",
+            // "surname": "Doe",
+            // "email": "john@doe.com",
+            // "mobile_no": "2348033000989"
+            // "middlename": "Jane",
+            // "dob": "2005-05-13",
+            // "gender": "M",
+            // "title": "Mr",
+            // "address_line_1": "23, Okon street, Ikeja",
+            // "address_line_2": "Ikeja",
+            // "city": "Mushin",
+            // "state": "Lagos State",
+            // "country": "Nigeria"
+
+
+            'title'  => sanitize_text_field($_POST['title']),
+            'dob'  => sanitize_text_field($_POST['dob']),
+            'address_line_1'  => sanitize_text_field($_POST['adrress']),
+            'address_line_2'  => sanitize_text_field($_POST['adrress']),
+            'city'  => sanitize_text_field($_POST['city']),
+            'state'  => sanitize_text_field($_POST['state']),
+            'country'  => sanitize_text_field($_POST['country']),
+
             'name'    => sanitize_text_field($_POST['name']),
             'email'   => $email,
             'phone'   => sanitize_text_field($_POST['phone']),
@@ -51,21 +77,32 @@ class CustomerController {
         $wpdb->insert($customers_table, $data);
         $customer_id = $wpdb->insert_id;
 
-        // 🔁 Call reserved account API
-        $account = $this->getReservedAccount($data); // implement this
+        $accountPayload = [
+            'customer_name'    => $data['name'],
+            'email'            => $data['email'],
+            'phone_number'     => $data['phone'],
+            'bvn'              => '12345678901', // optional if you don't have BVN
+            'transaction_ref'  => 'CUST_' . time(),
+            'preferred_bank'   => 'Fidelity' // optional or based on API docs
+        ];
 
-        if (!$account) {
-            wp_send_json_error(['message' => 'Customer created, but failed to generate reserved account.']);
+        $paygate = new PaygateController();
+        $apiResponse = $paygate->callPayGateApi('/v2/transact', $accountPayload);
+
+        if (!$apiResponse['success'] || empty($apiResponse['data']['data']['account_number'])) {
+            wp_send_json_error(['message' => 'Customer created, but failed to get virtual account.']);
         }
 
-        // Save reserved account
+        $accountDetails = $apiResponse['data']['data'];
+
+
         $wpdb->insert($accounts_table, [
             'customer_id'    => $customer_id,
-            'bank_name'      => $account['bank_name'],
-            'account_number' => $account['account_number'],
-            'account_name'   => $account['account_name'],
-            'provider'       => $account['provider'],
-            'meta'           => maybe_serialize($account['meta']),
+            'bank_name'      => $accountDetails['bank_name'] ?? 'Fidelity',
+            'account_number' => $accountDetails['account_number'],
+            'account_name'   => $accountDetails['account_name'],
+            'provider'       => 'paygateplus',
+            'meta'           => maybe_serialize($accountDetails),
             'created_at'     => current_time('mysql')
         ]);
 
@@ -115,18 +152,6 @@ class CustomerController {
         wp_send_json_success(['message' => 'Customer updated successfully.']);
     }
 
-    
-    private function getReservedAccount($customer)
-    {
-        // Simulated response – replace with actual API call
-        return [
-            'bank_name'      => 'Sample Bank',
-            'account_number' => '1234567890',
-            'account_name'   => $customer['name'],
-            'provider'       => 'SampleProvider',
-            'meta'           => ['ref_id' => uniqid()]
-        ];
-    }
 
     public function deleteCustomer()
     {
