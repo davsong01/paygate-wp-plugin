@@ -8,7 +8,7 @@ class ProductController
 {
     public function getProducts()
     {
-        check_ajax_referer('paygate_products', 'nonce');
+        check_ajax_referer('paygate_nonce', 'nonce');
 
         global $wpdb;
         $table = $wpdb->prefix . 'paygate_products';
@@ -19,7 +19,7 @@ class ProductController
 
     public function saveProduct()
     {
-        check_ajax_referer('paygate_products', 'nonce');
+        check_ajax_referer('paygate_nonce', 'nonce');
 
         global $wpdb;
         $table = $wpdb->prefix . 'paygate_products';
@@ -95,7 +95,7 @@ class ProductController
 
     public function deleteProduct()
     {
-        check_ajax_referer('paygate_products', 'nonce');
+        check_ajax_referer('paygate_nonce', 'nonce');
 
         global $wpdb;
         $table = $wpdb->prefix . 'paygate_products';

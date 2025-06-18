@@ -7,7 +7,7 @@ defined('ABSPATH') || exit;
 class CustomerController {
     public function getCustomers()
     {
-        check_ajax_referer('paygate_customers', 'nonce');
+        check_ajax_referer('paygate_nonce', 'nonce');
         global $wpdb;
         $customers_table = $wpdb->prefix . 'paygate_customers';
         $accounts_table  = $wpdb->prefix . 'paygate_reserved_account_numbers';
@@ -24,7 +24,7 @@ class CustomerController {
 
     public function saveCustomer()
     {
-        check_ajax_referer('paygate_customers', 'nonce');
+        check_ajax_referer('paygate_nonce', 'nonce');
         global $wpdb;
 
         $customers_table = $wpdb->prefix . 'paygate_customers';
@@ -72,6 +72,50 @@ class CustomerController {
         wp_send_json_success(['message' => 'Customer created successfully']);
     }
 
+    public function updateCustomer()
+    {
+        check_ajax_referer('paygate_nonce', 'nonce');
+        global $wpdb;
+
+        $customers_table = $wpdb->prefix . 'paygate_customers';
+
+        $id = isset($_POST['id']) ? absint($_POST['id']) : 0;
+        if (!$id) {
+            wp_send_json_error(['message' => 'Invalid customer ID.']);
+        }
+
+        $email = sanitize_email($_POST['email']);
+
+        // ✅ Check if email belongs to another customer
+        $exists = $wpdb->get_var($wpdb->prepare(
+            "SELECT id FROM $customers_table WHERE email = %s AND id != %d LIMIT 1",
+            $email,
+            $id
+        ));
+
+        if ($exists) {
+            wp_send_json_error(['message' => 'Another customer with this email already exists.']);
+        }
+
+        $data = [
+            'name'       => sanitize_text_field($_POST['name']),
+            'email'      => $email,
+            'phone'      => sanitize_text_field($_POST['phone']),
+            'gender'     => sanitize_text_field($_POST['gender']),
+            'address'    => sanitize_text_field($_POST['address']),
+            'updated_at' => current_time('mysql'),
+        ];
+
+        $updated = $wpdb->update($customers_table, $data, ['id' => $id]);
+
+        if ($updated === false) {
+            wp_send_json_error(['message' => 'Failed to update customer.']);
+        }
+
+        wp_send_json_success(['message' => 'Customer updated successfully.']);
+    }
+
+    
     private function getReservedAccount($customer)
     {
         // Simulated response – replace with actual API call
@@ -86,7 +130,7 @@ class CustomerController {
 
     public function deleteCustomer()
     {
-        check_ajax_referer('paygate_customers', 'nonce');
+        check_ajax_referer('paygate_nonce', 'nonce');
         global $wpdb;
         $wpdb->delete($wpdb->prefix . 'paygate_customers', ['id' => intval($_POST['id'])]);
         wp_send_json_success(['message' => 'Customer deleted']);

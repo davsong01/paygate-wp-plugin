@@ -1,6 +1,7 @@
-<div class="wrap">
-    <h1 class="wp-heading-inline">Products</h1>
+<div class="container mt-4">
+    <h4>Products</h4>
     <button id="addProductBtn" class="btn btn-primary mb-3">+ Add Product</button>
+
     <?php include_once PAYGATE_PATH . 'templates/partials/admin-alert.php'; ?>
     <div class="table-responsive">
         <table id="productsTable" class="table table-bordered table-hover align-middle">
