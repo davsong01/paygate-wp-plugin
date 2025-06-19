@@ -62,7 +62,7 @@ class CustomerController {
 
         
         $paygate = new PaygateController();
-        $apiResponse = $paygate->callPayGateApi('/v2/transact', $basicData);
+        $apiResponse = $paygate->generateReservedAccount('/v2/transact', $basicData);
 
         if (!$apiResponse['success'] || empty($apiResponse['data']['data']['account_number'])) {
             wp_send_json_error(['message' => 'Customer created, but failed to get virtual account.']);

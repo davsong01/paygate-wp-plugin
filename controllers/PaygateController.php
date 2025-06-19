@@ -34,7 +34,7 @@ class PaygateController
     /**
      * Perform an API call to PayGate
      */
-    public function callPayGateApi($endpoint, $payload, $requestRef = null)
+    public function generateReservedAccount($endpoint, $payload, $requestRef = null)
     {
         if($this->getSetting('application_mode') == 'development'){
             return json_decode('{
@@ -87,8 +87,46 @@ class PaygateController
         ];
 
         $payload['request_ref'] = $requestRef;
-        $payload['auth_provider'] = 'FidelityVirtual';
+        $payload['request_type'] = 'open_account';
+        $payload['auth'] = [
+            "type" => null,
+            "secure" => null,
+            "auth_provider" => "FidelityVirtual",
+            "route_mode" => null
+        ];
 
+        $payload['transaction'] = [
+            "mock_mode" => $this->getSetting('application_mode') == 'development' ? "Mock" : "Live",
+            "transaction_ref" => $requestRef,
+            "transaction_desc" => "Biopharma Generated",
+            "transaction_ref_parent" => null,
+            "amount" => 1000,
+            "customer" => [
+                "customer_ref" => "2348033000989",
+                "firstname" => "John",
+                "surname" => "Doe",
+                "email" => "john@doe.com",
+                "mobile_no" => "2348033000989"
+            ],
+            "meta" => [
+                "a_key" => $this->getSetting('api_key'),
+                "b_key" => $this->getSetting('secret_key')
+            ],
+            "details" =>[
+                "name_on_account" => "John J. Doe",
+                "middlename" => "Jane",
+                "dob" => "2005-05-13",
+                "gender" => "M",
+                "title" => ucfirst($payload['title']),
+                "address_line_1" => $payload['address_line_1'],
+                "address_line_2" => $payload['address_line_2'],
+                "city" => $payload['city'],
+                "state" => $payload['state'],
+                "country" => $payload['country']
+            ],
+        ];
+
+        
         $response = wp_remote_post($url, [
             'headers' => $headers,
             'body'    => json_encode($payload),
