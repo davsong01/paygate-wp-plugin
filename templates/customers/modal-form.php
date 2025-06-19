@@ -8,19 +8,35 @@
             <div class="modal-body row g-3">
                 <input type="hidden" name="id" id="customer_id">
                 <div class="col-md-6">
-                    <label for="customer_name" class="form-label">Full Name</label>
+                    <label for="title" class="form-label">Title <span class="required">*</span></label>
+                    <select name="title" id="customer_title" class="form-select" required>
+                        <option value="">Select Title</option>
+                        <option value="mr">Mr</option>
+                        <option value="mrs">Mrs</option>
+                        <option value="miss">Miss</option>
+                        <option value="ms">Ms</option>
+                        <option value="dr">Dr</option>
+                        <option value="prof">Prof</option>
+                        <option value="chief">Chief</option>
+                        <option value="eng">Engr</option>
+                        <option value="rev">Rev</option>
+                        <option value="hon">Hon</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="customer_name" class="form-label">Full Name <span class="required">*</span></label>
                     <input type="text" name="name" id="customer_name" class="form-control" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="customer_email" class="form-label">Email</label>
+                    <label for="customer_email" class="form-label">Email <span class="required">*</span></label>
                     <input type="email" name="email" id="customer_email" class="form-control" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="customer_phone" class="form-label">Phone</label>
+                    <label for="customer_phone" class="form-label">Phone <span class="required">*</span></label>
                     <input type="text" name="phone" id="customer_phone" class="form-control">
                 </div>
                 <div class="col-md-6">
-                    <label for="customer_gender" class="form-label">Gender</label>
+                    <label for="customer_gender" class="form-label">Gender <span class="required">*</span></label>
                     <select name="gender" id="customer_gender" class="form-select">
                         <option value="">Select Gender</option>
                         <option value="male">Male</option>
@@ -32,13 +48,32 @@
                     <input type="date" name="dob" id="customer_dob" class="form-control">
                 </div>
                 <div class="col-md-6">
-                    <label for="customer_address_line_1" class="form-label">Address Line 1</label>
-                    <input type="text" name="address_line_1" id="customer_address_line_1" class="form-control">
+                    <label for="customer_address_line_1" class="form-label">Address Line 1 <span class="required">*</span></label>
+                    <input type="text" name="address_line_1" id="customer_address_line_1" class="form-control" required>
                 </div>
 
                 <div class="col-md-6">
                     <label for="customer_address_line_2" class="form-label">Address Line 2</label>
                     <input type="text" name="address_line_2" id="customer_address_line_2" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="customer_country" class="form-label">Country <span class="required">*</span></label>
+                    <select name="country_id" id="customer_country" class="form-select" required>
+                        <option value="">Select Country</option>
+                        <!-- Options populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="customer_state" class="form-label">State <span class="required">*</span></label>
+                    <select name="state_id" id="customer_state" class="form-select" required>
+                        <option value="">Select State</option>
+                        <!-- Options populated dynamically -->
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" name="city" id="city" class="form-control">
                 </div>
             </div>
             <div class="modal-footer">

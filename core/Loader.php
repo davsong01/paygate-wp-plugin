@@ -6,35 +6,18 @@ defined('ABSPATH') || exit;
 
 class Loader
 {
-
-    // public function init()
-    // {
-    //     require_once __DIR__ . '/MenuRegistrar.php';
-    //     (new MenuRegistrar())->register();
-
-    //     add_action('admin_enqueue_scripts', [$this, 'enqueueAssets']);
-
-    //     add_action('admin_init', function () {
-    //         require_once plugin_dir_path(__FILE__) . '/../ajax/product-actions.php';
-    //         require_once plugin_dir_path(__FILE__) . '/../ajax/customer-actions.php';
-    //     });
-
-    //     add_action('wp_ajax_paygate_save_customer', [$this, 'saveCustomer']);
-    //     add_action('wp_ajax_paygate_update_customer', [$this, 'updateCustomer']);
-
-    // }
     public function init()
     {
+        $this->restrictAccess();
+        
         require_once __DIR__ . '/MenuRegistrar.php';
         (new MenuRegistrar())->register();
 
-        // ✅ Load actions early so wp_ajax hooks can work
         require_once plugin_dir_path(__FILE__) . '/../ajax/product-actions.php';
         require_once plugin_dir_path(__FILE__) . '/../ajax/customer-actions.php';
 
         add_action('admin_enqueue_scripts', [$this, 'enqueueAssets']);
 
-        // ✅ Register Ajax callbacks
         add_action('wp_ajax_paygate_save_customer', [$this, 'saveCustomer']);
         add_action('wp_ajax_paygate_update_customer', [$this, 'updateCustomer']);
     }
@@ -62,5 +45,19 @@ class Loader
 
         wp_localize_script('paygate-admin-products-js', 'PayGateVars', $vars);
         wp_localize_script('paygate-admin-customers-js', 'PayGateVars', $vars);
+    }
+
+    public function restrictAccess()
+    {
+        add_action('admin_init', function () {
+            if (
+                is_admin() &&
+                isset($_GET['page']) &&
+                strpos($_GET['page'], 'paygate') !== false &&
+                !current_user_can('manage_paygate')
+            ) {
+                wp_die('You do not have sufficient permissions to access this page.');
+            }
+        });
     }
 }

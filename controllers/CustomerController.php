@@ -42,52 +42,27 @@ class CustomerController {
         }
 
         $basicData = [
-            // "customer_ref": "2348033000989",
-            // "firstname": "John",
-            // "surname": "Doe",
-            // "email": "john@doe.com",
-            // "mobile_no": "2348033000989"
-            // "middlename": "Jane",
-            // "dob": "2005-05-13",
-            // "gender": "M",
-            // "title": "Mr",
-            // "address_line_1": "23, Okon street, Ikeja",
-            // "address_line_2": "Ikeja",
-            // "city": "Mushin",
-            // "state": "Lagos State",
-            // "country": "Nigeria"
-
-
             'title'  => sanitize_text_field($_POST['title']),
             'dob'  => sanitize_text_field($_POST['dob']),
-            'address_line_1'  => sanitize_text_field($_POST['adrress']),
-            'address_line_2'  => sanitize_text_field($_POST['adrress']),
+            'address_line_1'  => sanitize_text_field($_POST['address_line_1']),
+            'address_line_2'  => sanitize_text_field($_POST['address_line_2']),
             'city'  => sanitize_text_field($_POST['city']),
-            'state'  => sanitize_text_field($_POST['state']),
-            'country'  => sanitize_text_field($_POST['country']),
+            'state_id'  => sanitize_text_field($_POST['state_id']),
+            'country_id'  => sanitize_text_field($_POST['country_id']),
 
             'name'    => sanitize_text_field($_POST['name']),
             'email'   => $email,
             'phone'   => sanitize_text_field($_POST['phone']),
             'gender'  => sanitize_text_field($_POST['gender']),
-            'address' => sanitize_text_field($_POST['address']),
             'created_at' => current_time('mysql')
         ];
         
         $wpdb->insert($customers_table, $basicData);
         $customer_id = $wpdb->insert_id;
 
-        $accountPayload = [
-            'customer_name'    => $data['name'],
-            'email'            => $data['email'],
-            'phone_number'     => $data['phone'],
-            'bvn'              => '12345678901', // optional if you don't have BVN
-            'transaction_ref'  => 'CUST_' . time(),
-            'preferred_bank'   => 'Fidelity' // optional or based on API docs
-        ];
-
+        
         $paygate = new PaygateController();
-        $apiResponse = $paygate->callPayGateApi('/v2/transact', $accountPayload);
+        $apiResponse = $paygate->callPayGateApi('/v2/transact', $basicData);
 
         if (!$apiResponse['success'] || empty($apiResponse['data']['data']['account_number'])) {
             wp_send_json_error(['message' => 'Customer created, but failed to get virtual account.']);
@@ -123,7 +98,6 @@ class CustomerController {
 
         $email = sanitize_email($_POST['email']);
 
-        // ✅ Check if email belongs to another customer
         $exists = $wpdb->get_var($wpdb->prepare(
             "SELECT id FROM $customers_table WHERE email = %s AND id != %d LIMIT 1",
             $email,
@@ -135,13 +109,21 @@ class CustomerController {
         }
 
         $data = [
-            'name'       => sanitize_text_field($_POST['name']),
-            'email'      => $email,
-            'phone'      => sanitize_text_field($_POST['phone']),
-            'gender'     => sanitize_text_field($_POST['gender']),
-            'address'    => sanitize_text_field($_POST['address']),
-            'updated_at' => current_time('mysql'),
+            'title'  => sanitize_text_field($_POST['title']),
+            'dob'  => sanitize_text_field($_POST['dob']),
+            'address_line_1'  => sanitize_text_field($_POST['address_line_1']),
+            'address_line_2'  => sanitize_text_field($_POST['address_line_2']),
+            'city'  => sanitize_text_field($_POST['city']),
+            'state_id'  => sanitize_text_field($_POST['state_id']),
+            'country_id'  => sanitize_text_field($_POST['country_id']),
+
+            'name'    => sanitize_text_field($_POST['name']),
+            'email'   => $email,
+            'phone'   => sanitize_text_field($_POST['phone']),
+            'gender'  => sanitize_text_field($_POST['gender']),
+            'updated_at' => current_time('mysql')
         ];
+
 
         $updated = $wpdb->update($customers_table, $data, ['id' => $id]);
 
@@ -152,13 +134,36 @@ class CustomerController {
         wp_send_json_success(['message' => 'Customer updated successfully.']);
     }
 
-
     public function deleteCustomer()
     {
         check_ajax_referer('paygate_nonce', 'nonce');
         global $wpdb;
         $wpdb->delete($wpdb->prefix . 'paygate_customers', ['id' => intval($_POST['id'])]);
         wp_send_json_success(['message' => 'Customer deleted']);
+    }
+
+    public function getCountries()
+    {
+        global $wpdb;
+        $table = $wpdb->prefix . 'paygate_countries';
+        $results = $wpdb->get_results("SELECT id, name FROM $table ORDER BY name ASC");
+
+        wp_send_json_success($results);
+    }
+
+    public function getStatesByCountry()
+    {
+        global $wpdb;
+
+        $countryId = intval($_POST['country_id'] ?? 0);
+        error_log("Country ID: " . $countryId);
+
+        $table = $wpdb->prefix . 'paygate_states';
+        $results = $wpdb->get_results(
+            $wpdb->prepare("SELECT id, name FROM $table WHERE country_id = %d ORDER BY name ASC", $countryId)
+        );
+
+        wp_send_json_success($results);
     }
 
 }

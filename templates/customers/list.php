@@ -11,7 +11,6 @@
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Gender</th>
-                    <th>Address</th>
                     <th>Bank Details</th>
                     <th>Created</th>
                     <th>Actions</th>
