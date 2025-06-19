@@ -41,26 +41,26 @@ class PaygateController
                 "status": "Successful",
                 "message": "Request processed successfully",
                 "data": {
-                  "provider_response_code": "00",
-                  "provider": "FidelityVirtual",
-                  "errors": null,
-                  "error": null,
-                  "provider_response": {
-                    "reference": "MVgGByKV-js-oa",
-                    "account_number": "9012807653",
-                    "contract_code": null,
-                    "account_reference": "MVgGByKV-js-oa",
-                    "account_name": "Uju Usman",
-                    "currency_code": "NGN",
-                    "customer_email": "uju@gmail.com",
-                    "bank_name": "Heritage Bank",
-                    "bank_code": "030",
-                    "account_type": null,
-                    "status": "ACTIVE",
-                    "created_on": "2021-11-01-19-11-55",
-                    "meta": {}
-                  },
-                  "client_info": null
+                    "provider_response_code": "00",
+                    "provider": "FidelityVirtual",
+                    "errors": null,
+                    "error": null,
+                    "provider_response": {
+                        "reference": "MVgGByKV-js-oa",
+                        "account_number": "9012807653",
+                        "contract_code": null,
+                        "account_reference": "MVgGByKV-js-oa",
+                        "account_name": "Uju Usman",
+                        "currency_code": "NGN",
+                        "customer_email": "uju@gmail.com",
+                        "bank_name": "Heritage Bank",
+                        "bank_code": "030",
+                        "account_type": null,
+                        "status": "ACTIVE",
+                        "created_on": "2021-11-01-19-11-55",
+                        "meta": {}
+                    },
+                    "client_info": null
                 }
             }', true);
         }

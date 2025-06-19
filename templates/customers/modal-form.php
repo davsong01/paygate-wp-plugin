@@ -27,9 +27,18 @@
                         <option value="female">Female</option>
                     </select>
                 </div>
-                <div class="col-12">
-                    <label for="customer_address" class="form-label">Address</label>
-                    <textarea name="address" id="customer_address" class="form-control"></textarea>
+                <div class="col-md-6">
+                    <label for="customer_dob" class="form-label">Date of Birth</label>
+                    <input type="date" name="dob" id="customer_dob" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="customer_address_line_1" class="form-label">Address Line 1</label>
+                    <input type="text" name="address_line_1" id="customer_address_line_1" class="form-control">
+                </div>
+
+                <div class="col-md-6">
+                    <label for="customer_address_line_2" class="form-label">Address Line 2</label>
+                    <input type="text" name="address_line_2" id="customer_address_line_2" class="form-control">
                 </div>
             </div>
             <div class="modal-footer">

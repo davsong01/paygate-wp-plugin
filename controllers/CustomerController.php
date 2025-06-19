@@ -73,8 +73,8 @@ class CustomerController {
             'address' => sanitize_text_field($_POST['address']),
             'created_at' => current_time('mysql')
         ];
-
-        $wpdb->insert($customers_table, $data);
+        
+        $wpdb->insert($customers_table, $basicData);
         $customer_id = $wpdb->insert_id;
 
         $accountPayload = [
