@@ -45,7 +45,7 @@ class Installer
             country_id BIGINT UNSIGNED NULL,
             state_id BIGINT UNSIGNED NULL,
             city VARCHAR(255) NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 
         ) $charset_collate;";
@@ -70,24 +70,12 @@ class Installer
             FOREIGN KEY (customer_id) REFERENCES {$wpdb->prefix}paygate_customers(id) ON DELETE CASCADE
         ) $charset_collate;";
 
-
-        // 4. Transaction Items Table
-        // $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_transaction_items (
-        //     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        //     transaction_id BIGINT UNSIGNED NOT NULL,
-        //     product_id BIGINT UNSIGNED NOT NULL,
-        //     quantity INT NOT NULL DEFAULT 1,
-        //     price DECIMAL(10,2) NOT NULL,
-        //     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        //     FOREIGN KEY (transaction_id) REFERENCES {$wpdb->prefix}paygate_transactions(id) ON DELETE CASCADE,
-        //     FOREIGN KEY (product_id) REFERENCES {$wpdb->prefix}paygate_products(id) ON DELETE CASCADE
-        // ) $charset_collate;";
-
         // 5. Reserved Account Numbers Table
         $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_reserved_account_numbers (
             id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             customer_id BIGINT UNSIGNED NOT NULL,
             bank_name VARCHAR(50) NOT NULL,
+            bank_code VARCHAR(20) NULL,
             account_number VARCHAR(50) NOT NULL,
             account_name VARCHAR(255) NOT NULL,
             provider VARCHAR(100) NOT NULL,
@@ -166,6 +154,198 @@ class Installer
                 $user->set_role('accountant');
             }
         }
+
+        // 12 Do settings seeders
+        self::seedSettings();
+
+        // 13 Do settings seeders
+        self::seedCustomers();
+    }
+
+    public static function seedSettings()
+    {
+        global $wpdb;
+        $table = $wpdb->prefix . 'paygate_settings';
+
+        $defaultSettings = [
+            [
+                'option_key' => 'base_url',
+                'option_value' => 'https://api.paygateplus.ng',
+            ],
+            [
+                'option_key' => 'default_country_code',
+                'option_value' => 'NG',
+            ],
+            [
+                'option_key' => 'default_currency',
+                'option_value' => '₦',
+            ],
+            [
+                'option_key' => 'api_secret',
+                'option_value' => 'weweweweewweew',
+            ],
+            [
+                'option_key' => 'api_key',
+                'option_value' => '12121232323232323',
+            ],
+            
+            [
+                'option_key' => 'application_mode',
+                'option_value' => 'development',
+            ],
+        ];
+
+        foreach ($defaultSettings as $setting) {
+            $exists = $wpdb->get_var(
+                $wpdb->prepare("SELECT COUNT(*) FROM {$table} WHERE option_key = %s", $setting['option_key'])
+            );
+
+            if (!$exists) {
+                $wpdb->insert($table, [
+                    'option_key' => $setting['option_key'],
+                    'option_value' => maybe_serialize($setting['option_value']),
+                    'created_at' => current_time('mysql'),
+                    'updated_at' => current_time('mysql'),
+                ]);
+            }
+        }
+    }
+
+    public static function seedCustomers()
+    {
+        global $wpdb;
+
+        $customerTable = $wpdb->prefix . 'paygate_customers';
+        $reservedTable = $wpdb->prefix . 'paygate_reserved_account_numbers';
+
+        $customers = [
+            [
+                'firstname' => 'John',
+                'surname' => 'Doe',
+                'middlename' => 'M',
+                'email' => 'john.doe@example.com',
+                'phone' => '08012345678',
+                'gender' => 'male',
+                'dob' => '1990-01-01',
+                'title' => 'mr',
+                'address_line_1' => '123 Main Street',
+                'address_line_2' => 'Apt 4B',
+                'city' => 'Lagos',
+                'state_id' => 1,
+                'country_id' => 1,
+            ],
+            [
+                'firstname' => 'Jane',
+                'surname' => 'Smith',
+                'middlename' => 'A',
+                'email' => 'jane.smith@example.com',
+                'phone' => '08098765432',
+                'gender' => 'female',
+                'dob' => '1992-05-20',
+                'title' => 'ms',
+                'address_line_1' => '456 Broad Street',
+                'address_line_2' => '',
+                'city' => 'Abuja',
+                'state_id' => 2,
+                'country_id' => 1,
+            ],
+            [
+                'firstname' => 'David',
+                'surname' => 'Okoro',
+                'middlename' => 'T',
+                'email' => 'david.okoro@example.com',
+                'phone' => '08120000001',
+                'gender' => 'male',
+                'dob' => '1988-08-15',
+                'title' => 'mr',
+                'address_line_1' => '7 Unity Rd',
+                'address_line_2' => '',
+                'city' => 'Ibadan',
+                'state_id' => 3,
+                'country_id' => 1,
+            ],
+            [
+                'firstname' => 'Linda',
+                'surname' => 'Ibrahim',
+                'middlename' => 'K',
+                'email' => 'linda.ibrahim@example.com',
+                'phone' => '07030000003',
+                'gender' => 'female',
+                'dob' => '1995-12-25',
+                'title' => 'mrs',
+                'address_line_1' => '10 Peace Ave',
+                'address_line_2' => '',
+                'city' => 'Kaduna',
+                'state_id' => 4,
+                'country_id' => 1,
+            ],
+            [
+                'firstname' => 'Emeka',
+                'surname' => 'Okafor',
+                'middlename' => 'C',
+                'email' => 'emeka.okafor@example.com',
+                'phone' => '09090000005',
+                'gender' => 'male',
+                'dob' => '1985-03-10',
+                'title' => 'mr',
+                'address_line_1' => '22 Market Road',
+                'address_line_2' => 'Suite 5',
+                'city' => 'Enugu',
+                'state_id' => 5,
+                'country_id' => 1,
+            ],
+        ];
+
+        foreach ($customers as $index => $customer) {
+            $email = $customer['email'];
+
+            $customerId = $wpdb->get_var(
+                $wpdb->prepare("SELECT id FROM {$customerTable} WHERE email = %s", $email)
+            );
+
+            if (!$customerId) {
+                $wpdb->insert($customerTable, [
+                    'firstname'        => $customer['firstname'],
+                    'surname'          => $customer['surname'],
+                    'middlename'       => $customer['middlename'],
+                    'email'            => $customer['email'],
+                    'phone'            => $customer['phone'],
+                    'gender'           => $customer['gender'],
+                    'dob'              => $customer['dob'],
+                    'title'            => $customer['title'],
+                    'address_line_1'   => $customer['address_line_1'],
+                    'address_line_2'   => $customer['address_line_2'],
+                    'city'             => $customer['city'],
+                    'state_id'         => $customer['state_id'],
+                    'country_id'       => $customer['country_id'],
+                    'created_at'       => current_time('mysql'),
+                    'updated_at'       => current_time('mysql'),
+                ]);
+
+                $customerId = $wpdb->insert_id;
+            }
+
+            // 👇 Set first customer account number as 4571111111, others as 100000000X
+            $accountNumber = $index === 0
+                ? '4571111111'
+                : str_pad((string)(1000000000 + $index + 1), 10, '0', STR_PAD_LEFT);
+
+            $existingAcct = $wpdb->get_var(
+                $wpdb->prepare("SELECT id FROM {$reservedTable} WHERE account_number = %s", $accountNumber)
+            );
+
+            if (!$existingAcct) {
+                $wpdb->insert($reservedTable, [
+                    'customer_id'     => $customerId,
+                    'account_number'  => $accountNumber,
+                    'bank_code'       => '999',
+                    'bank_name'       => 'Test Bank',
+                    'account_name'    => "{$customer['firstname']} {$customer['surname']}",
+                    'created_at'      => current_time('mysql'),
+                    'updated_at'      => current_time('mysql'),
+                ]);
+            }
+        }
     }
 
     public static function seedCountriesAndStates(){
@@ -205,7 +385,6 @@ class Installer
         }
     }
 
-    
     public static function states(){
         return [
             [
