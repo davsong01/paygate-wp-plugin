@@ -1,6 +1,6 @@
 <?php
 
-namespace PayGate\Controllers;
+namespace Controllers;
 
 use WP_Error;
 
@@ -17,9 +17,9 @@ class PaygateController
         $table = $wpdb->prefix . 'paygate_settings';
 
         if (empty(self::$settings)) {
-            $results = $wpdb->get_results("SELECT key_option, option_value FROM {$table}");
+            $results = $wpdb->get_results("SELECT option_key, option_value FROM {$table}");
             foreach ($results as $row) {
-                self::$settings[$row->key_option] = $row->option_value;
+                self::$settings[$row->option_key] = $row->option_value;
             }
         }
 
@@ -64,7 +64,7 @@ class PaygateController
         //         }
         //     }', true);
         // }
-
+        error_log("Key: ".$this->getSetting('api_key'));
         $apiKey    = $this->getSetting('api_key');
         $apiSecret = $this->getSetting('api_secret');
         $baseUrl   = rtrim($this->getSetting('base_url'), '/');
@@ -86,16 +86,16 @@ class PaygateController
             'Signature: ' . $signature,
         ];
 
-        $payload['request_ref'] = $requestRef;
-        $payload['request_type'] = 'open_account';
-        $payload['auth'] = [
+        $payloadX['request_ref'] = $requestRef;
+        $payloadX['request_type'] = 'open_account';
+        $payloadX['auth'] = [
             "type" => null,
             "secure" => null,
             "auth_provider" => "FidelityVirtual",
             "route_mode" => null
         ];
 
-        $payload['transaction'] = [
+        $payloadX['transaction'] = [
             "mock_mode" => $this->getSetting('application_mode') == 'development' ? "Inspect" : "Live",
             "transaction_ref" => $requestRef,
             "transaction_desc" => "Biopharma Generated",
@@ -115,7 +115,7 @@ class PaygateController
             "details" =>[
                 "name_on_account" => $payload['firstname'] . ' ' . ($payload['surname'] ?? ''),
                 "middlename" => $payload['firstname'] ?? '',
-                "dob" => isset($payload['dob']) ? Carbon::parse($payload['dob'])->format('Y-m-d') : null,
+                "dob" => !empty($payload['dob']) ? date('Y-m-d', strtotime($payload['dob'])) : null,
                 "gender" => isset($payload['gender']) ? ucfirst(substr($payload['gender'], 0, 1)) : 'M',
                 "title" => ucfirst($payload['title']),
                 "address_line_1" => $payload['address_line_1'],
@@ -128,19 +128,20 @@ class PaygateController
 
         $response = wp_remote_post($url, [
             'headers' => $headers,
-            'body'    => json_encode($payload),
+            'body'    => json_encode($payloadX),
             'timeout' => 20,
         ]);
 
-        error_log("PayGate Payload: " . json_encode($payload, JSON_PRETTY_PRINT));
-        error_log("PayGate Payload: " . $response);
+        error_log("PayGate Payload: " . json_encode($payloadX, JSON_PRETTY_PRINT));
+        error_log("PayGate Header: " . json_encode($headers, JSON_PRETTY_PRINT));
+        error_log("PayGate Payload: " . json_encode($response));
 
         if (is_wp_error($response)) {
             return $response;
         }
 
         $body = json_decode(wp_remote_retrieve_body($response), true);
-
+        
         return $body;
     }
 }

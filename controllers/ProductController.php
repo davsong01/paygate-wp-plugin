@@ -1,6 +1,6 @@
 <?php
 
-namespace PayGate\Controllers;
+namespace Controllers;
 
 defined('ABSPATH') || exit;
 

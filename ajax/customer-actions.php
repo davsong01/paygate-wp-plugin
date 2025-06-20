@@ -1,8 +1,9 @@
 <?php
 
-use PayGate\Controllers\CustomerController;
+use Controllers\CustomerController;
 
 require_once dirname(__DIR__) . '/controllers/CustomerController.php';
+require_once dirname(__DIR__) . '/controllers/PaygateController.php';
 
 $controller = new CustomerController();
 

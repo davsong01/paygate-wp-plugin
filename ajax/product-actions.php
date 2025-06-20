@@ -1,6 +1,6 @@
 <?php
 
-use PayGate\Controllers\ProductController;
+use Controllers\ProductController;
 
 require_once dirname(__DIR__) . '/controllers/ProductController.php';
 

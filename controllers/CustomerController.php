@@ -1,8 +1,8 @@
 <?php
 
-namespace PayGate\Controllers;
+namespace Controllers;
 
-use PayGate\Controllers\PaygateController;
+use controllers\PaygateController;
 
 defined('ABSPATH') || exit;
 
@@ -62,8 +62,9 @@ class CustomerController {
         $wpdb->insert($customers_table, $basicData);
         $customer_id = $wpdb->insert_id;
 
-        
+
         $paygate = new PaygateController();
+        
         $apiResponse = $paygate->generateReservedAccount('/v2/transact', $basicData);
 
         if (!$apiResponse['success'] || empty($apiResponse['data']['data']['account_number'])) {
@@ -88,7 +89,6 @@ class CustomerController {
 
     public function generateAccountNumber()
     {
-        wp_error('some');
         check_ajax_referer('paygate_nonce', 'nonce');
 
         $customerId = intval($_POST['customer_id']);
@@ -125,7 +125,9 @@ class CustomerController {
             'city'            => sanitize_text_field($customer->city),
             'state'           => sanitize_text_field($customer->state_name),
             'country'         => sanitize_text_field($customer->country_name),
-            'name'            => sanitize_text_field($customer->name),
+            'firstname'       => sanitize_text_field($customer->firstname),
+            'surname'         => sanitize_text_field($customer->surname),
+            'middlename'      => sanitize_text_field($customer->middlename),
             'email'           => sanitize_email($customer->email),
             'phone'           => sanitize_text_field($customer->phone),
             'gender'          => sanitize_text_field($customer->gender),
