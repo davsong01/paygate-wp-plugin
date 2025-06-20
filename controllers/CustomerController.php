@@ -236,7 +236,7 @@ class CustomerController {
         global $wpdb;
 
         $countryId = intval($_POST['country_id'] ?? 0);
-        error_log("Country ID: " . $countryId);
+        // error_log("Country ID: " . $countryId);
 
         $table = $wpdb->prefix . 'paygate_states';
         $results = $wpdb->get_results(
