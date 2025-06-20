@@ -1,22 +1,25 @@
-<div class="container mt-4">
-    <h4>Customers</h4>
-    <button id="addCustomerBtn" class="btn btn-primary mb-3">+ Add Customer</button>
+<div class="wrap">
+    <h1 class="wp-heading-inline">Customers</h1>
+    <a href="#" id="addCustomerBtn" class="page-title-action">+ Add Customer</a>
+
     <?php include_once PAYGATE_PATH . 'templates/partials/admin-alert.php'; ?>
 
-    <div class="table-responsive">
-        <table id="customersTable" class="table table-bordered table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Gender</th>
-                    <th>Bank Details</th>
-                    <th>Created</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
+    <hr class="wp-header-end">
+
+    <table id="customersTable" class="wp-list-table widefat fixed striped">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Bank Details</th>
+                <th scope="col">Created</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
+
 <?php include plugin_dir_path(__FILE__) . '/modal-form.php'; ?>
