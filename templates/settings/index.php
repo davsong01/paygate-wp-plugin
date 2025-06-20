@@ -1,5 +1,5 @@
 <div class="wrap">
-    <h1>PayGate Settings</h1>
+    <h1 class="wp-heading-inline">PayGate Settings</h1>
 
     <?php if (isset($_GET['status']) && $_GET['status'] === 'success'): ?>
         <div class="notice notice-success is-dismissible">
@@ -15,15 +15,27 @@
         <input type="hidden" name="action" value="paygate_save_settings">
         <input type="hidden" name="paygate_settings_form" value="1">
 
-        <div class="row">
-            <?php foreach ($settings as $setting): ?>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label"><?= esc_html(ucwords(str_replace('_', ' ', $setting->option_key))) ?></label>
-                    <input type="text" name="settings[<?= esc_attr($setting->option_key) ?>]" class="form-control" value="<?= esc_attr($setting->option_value) ?>">
-                </div>
-            <?php endforeach; ?>
-        </div>
+        <table class="form-table" role="presentation">
+            <tbody>
+                <?php foreach ($settings as $setting): ?>
+                    <tr>
+                        <th scope="row">
+                            <label for="<?= esc_attr($setting->option_key) ?>">
+                                <?= esc_html(ucwords(str_replace('_', ' ', $setting->option_key))) ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input type="text"
+                                name="settings[<?= esc_attr($setting->option_key) ?>]"
+                                id="<?= esc_attr($setting->option_key) ?>"
+                                class="regular-text"
+                                value="<?= esc_attr($setting->option_value) ?>">
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
 
-        <button type="submit" class="btn btn-primary">Save Settings</button>
+        <?php submit_button('Save Settings'); ?>
     </form>
 </div>
