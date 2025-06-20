@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers;
+namespace controllers;
 
 use WP_Error;
 
@@ -141,7 +141,7 @@ class PaygateController
         }
 
         $body = json_decode(wp_remote_retrieve_body($response), true);
-        
+
         return $body;
     }
 }

@@ -23,14 +23,14 @@ class MenuRegistrar
             56
         );
 
-        add_submenu_page(
-            'paygate_dashboard',
-            'Products',
-            'Products',
-            'manage_options',
-            'paygate_products',
-            [$this, 'renderProducts']
-        );
+        // add_submenu_page(
+        //     'paygate_dashboard',
+        //     'Products',
+        //     'Products',
+        //     'manage_options',
+        //     'paygate_products',
+        //     [$this, 'renderProducts']
+        // );
 
         add_submenu_page(
             'paygate_dashboard',
@@ -43,12 +43,13 @@ class MenuRegistrar
 
         add_submenu_page(
             'paygate_dashboard',
-            'Transactions',
-            'Transactions',
+            'Inflows',
+            'Inflows',
             'manage_options',
-            'paygate_transactions',
-            [$this, 'renderTransactions']
+            'paygate_inflows',
+            [$this, 'renderInflows']
         );
+
 
         add_submenu_page(
             'paygate_dashboard',
@@ -56,7 +57,9 @@ class MenuRegistrar
             'Settings',
             'manage_options',
             'paygate_settings',
-            [$this, 'renderSettings']
+            function () {
+                (new \controllers\SettingsController())->render();
+            }
         );
     }
 
@@ -76,9 +79,9 @@ class MenuRegistrar
         include_once plugin_dir_path(__FILE__) . '/../templates/customers/list.php';
     }
 
-    public function renderTransactions()
+    public function renderInflows()
     {
-        include_once plugin_dir_path(__FILE__) . '/../templates/transactions/list.php';
+        include_once plugin_dir_path(__FILE__) . '/../templates/inflows/index.php';
     }
 
     public function renderSettings()

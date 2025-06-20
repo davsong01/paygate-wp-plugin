@@ -53,25 +53,35 @@ class Installer
         // 3. Transactions Table
         $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_transactions (
             id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            customer_id BIGINT UNSIGNED NOT NULL,
-            invoice_id VARCHAR(300) NOT NULL,
+            customer_id BIGINT UNSIGNED NULL,
+            request_ref VARCHAR(80) NULL,
+            transaction_ref VARCHAR(80) NULL,
+            request_type VARCHAR(100) NULL,
+            status VARCHAR(10) NOT NULL DEFAULT 'pending',
+            raw_dump LONGTEXT NULL,
+            query_dump LONGTEXT NULL,
             total_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-            status ENUM('initiated','paid','failed') DEFAULT 'initiated',
+            account_number VARCHAR(10) NULL,
+            mock_mode VARCHAR(50) NULL,
+            originator_details TEXT (100) NULL,
+
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (customer_id) REFERENCES {$wpdb->prefix}paygate_customers(id) ON DELETE CASCADE
         ) $charset_collate;";
 
+
         // 4. Transaction Items Table
-        $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_transaction_items (
-            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            transaction_id BIGINT UNSIGNED NOT NULL,
-            product_id BIGINT UNSIGNED NOT NULL,
-            quantity INT NOT NULL DEFAULT 1,
-            price DECIMAL(10,2) NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (transaction_id) REFERENCES {$wpdb->prefix}paygate_transactions(id) ON DELETE CASCADE,
-            FOREIGN KEY (product_id) REFERENCES {$wpdb->prefix}paygate_products(id) ON DELETE CASCADE
-        ) $charset_collate;";
+        // $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_transaction_items (
+        //     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        //     transaction_id BIGINT UNSIGNED NOT NULL,
+        //     product_id BIGINT UNSIGNED NOT NULL,
+        //     quantity INT NOT NULL DEFAULT 1,
+        //     price DECIMAL(10,2) NOT NULL,
+        //     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        //     FOREIGN KEY (transaction_id) REFERENCES {$wpdb->prefix}paygate_transactions(id) ON DELETE CASCADE,
+        //     FOREIGN KEY (product_id) REFERENCES {$wpdb->prefix}paygate_products(id) ON DELETE CASCADE
+        // ) $charset_collate;";
 
         // 5. Reserved Account Numbers Table
         $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_reserved_account_numbers (
@@ -188,7 +198,7 @@ class Installer
         // 2. Insert States (mapped to countries via code)
         foreach ($states as $state) {
             $wpdb->insert($state_table, [
-                'country_id' => $country_id_map['NG'],
+                'country_id' => $state['country_id'],
                 'name' => $state['name'],
                 'created_at' => current_time('mysql'),
             ]);
@@ -202,47 +212,47 @@ class Installer
                 "id" => "1",
                 "name" => "Abia State",
                 "status" => "1",
-                "country_id" => "253",
+                "country_id" => "1",
                 "created_at" => null,
                 "updated_at" =>
                 "2025-04-09 07=>02=>56"
             ],
-            ["id" => "2", "name" => "Adamawa State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "3", "name" => "Akwa Ibom State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "4", "name" => "Anambra State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "5", "name" => "Bauchi State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "6", "name" => "Bayelsa State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "7", "name" => "Benue State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "8", "name" => "Borno State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "9", "name" => "Cross River State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "10", "name" => "Delta State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "11", "name" => "Ebonyi State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "12", "name" => "Edo State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "13", "name" => "Ekiti State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "14", "name" => "Enugu State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "15", "name" => "FCT", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "16", "name" => "Gombe State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "17", "name" => "Imo State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "18", "name" => "Jigawa State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "19", "name" => "Kaduna State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "20", "name" => "Kano State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "21", "name" => "Katsina State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "22", "name" => "Kebbi State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "23", "name" => "Kogi State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "24", "name" => "Kwara State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "25", "name" => "Lagos State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "26", "name" => "Nasarawa State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "27", "name" => "Niger State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "28", "name" => "Ogun State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "29", "name" => "Ondo State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "30", "name" => "Osun State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "31", "name" => "Oyo State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "32", "name" => "Plateau State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "33", "name" => "Rivers State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "34", "name" => "Sokoto State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "35", "name" => "Taraba State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "36", "name" => "Yobe State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
-            ["id" => "37", "name" => "Zamfara State", "status" => "1", "country_id" => "253", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"]
+            ["id" => "2", "name" => "Adamawa State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "3", "name" => "Akwa Ibom State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "4", "name" => "Anambra State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "5", "name" => "Bauchi State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "6", "name" => "Bayelsa State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "7", "name" => "Benue State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "8", "name" => "Borno State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "9", "name" => "Cross River State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "10", "name" => "Delta State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "11", "name" => "Ebonyi State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "12", "name" => "Edo State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "13", "name" => "Ekiti State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "14", "name" => "Enugu State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "15", "name" => "FCT", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "16", "name" => "Gombe State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "17", "name" => "Imo State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "18", "name" => "Jigawa State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "19", "name" => "Kaduna State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "20", "name" => "Kano State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "21", "name" => "Katsina State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "22", "name" => "Kebbi State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "23", "name" => "Kogi State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "24", "name" => "Kwara State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "25", "name" => "Lagos State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "26", "name" => "Nasarawa State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "27", "name" => "Niger State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "28", "name" => "Ogun State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "29", "name" => "Ondo State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "30", "name" => "Osun State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "31", "name" => "Oyo State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "32", "name" => "Plateau State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "33", "name" => "Rivers State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "34", "name" => "Sokoto State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "35", "name" => "Taraba State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "36", "name" => "Yobe State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"],
+            ["id" => "37", "name" => "Zamfara State", "status" => "1", "country_id" => "1", "created_at" => null, "updated_at" => "2025-04-09 07=>02=>56"]
         ];
     }
 }
