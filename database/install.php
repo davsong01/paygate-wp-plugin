@@ -32,10 +32,12 @@ class Installer
         $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_customers (
             id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             wp_user_id BIGINT UNSIGNED NULL,
-            name VARCHAR(255),
-            title VARCHAR(15),
+            firstname VARCHAR(255),
+            surname VARCHAR(255) NULL,
+            middlename VARCHAR(255) NULL,
+            title VARCHAR(15) NULL,
             email VARCHAR(255),
-            phone VARCHAR(50),
+            phone VARCHAR(50) NULL,
             gender VARCHAR(10),
             address_line_1 VARCHAR(255) NULL,
             address_line_2 VARCHAR(255) NULL,
@@ -44,6 +46,8 @@ class Installer
             state_id BIGINT UNSIGNED NULL,
             city VARCHAR(255) NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+
         ) $charset_collate;";
 
         // 3. Transactions Table

@@ -18,8 +18,8 @@ class Loader
 
         add_action('admin_enqueue_scripts', [$this, 'enqueueAssets']);
 
-        add_action('wp_ajax_paygate_save_customer', [$this, 'saveCustomer']);
-        add_action('wp_ajax_paygate_update_customer', [$this, 'updateCustomer']);
+        // add_action('wp_ajax_paygate_save_customer', [$this, 'saveCustomer']);
+        // add_action('wp_ajax_paygate_update_customer', [$this, 'updateCustomer']);
     }
 
 

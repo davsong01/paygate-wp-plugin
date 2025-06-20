@@ -24,8 +24,16 @@
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <label for="customer_name" class="form-label">Full Name <span class="required">*</span></label>
-                    <input type="text" name="name" id="customer_name" class="form-control" required>
+                    <label for="customer_name" class="form-label">First Name <span class="required">*</span></label>
+                    <input type="text" name="firstname" id="customer_firstname" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="customer_name" class="form-label">Surname Name <span class="required">*</span></label>
+                    <input type="text" name="surname" id="customer_surname" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="customer_name" class="form-label">Middle Name</label>
+                    <input type="text" name="middlename" id="customer_middlename" class="form-control">
                 </div>
                 <div class="col-md-6">
                     <label for="customer_email" class="form-label">Email <span class="required">*</span></label>

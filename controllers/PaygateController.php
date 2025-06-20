@@ -36,34 +36,34 @@ class PaygateController
      */
     public function generateReservedAccount($endpoint, $payload, $requestRef = null)
     {
-        if($this->getSetting('application_mode') == 'development'){
-            return json_decode('{
-                "status": "Successful",
-                "message": "Request processed successfully",
-                "data": {
-                    "provider_response_code": "00",
-                    "provider": "FidelityVirtual",
-                    "errors": null,
-                    "error": null,
-                    "provider_response": {
-                        "reference": "MVgGByKV-js-oa",
-                        "account_number": "9012807653",
-                        "contract_code": null,
-                        "account_reference": "MVgGByKV-js-oa",
-                        "account_name": "Uju Usman",
-                        "currency_code": "NGN",
-                        "customer_email": "uju@gmail.com",
-                        "bank_name": "Heritage Bank",
-                        "bank_code": "030",
-                        "account_type": null,
-                        "status": "ACTIVE",
-                        "created_on": "2021-11-01-19-11-55",
-                        "meta": {}
-                    },
-                    "client_info": null
-                }
-            }', true);
-        }
+        // if($this->getSetting('application_mode') == 'development'){
+        //     return json_decode('{
+        //         "status": "Successful",
+        //         "message": "Request processed successfully",
+        //         "data": {
+        //             "provider_response_code": "00",
+        //             "provider": "FidelityVirtual",
+        //             "errors": null,
+        //             "error": null,
+        //             "provider_response": {
+        //                 "reference": "MVgGByKV-js-oa",
+        //                 "account_number": "9012807653",
+        //                 "contract_code": null,
+        //                 "account_reference": "MVgGByKV-js-oa",
+        //                 "account_name": "Uju Usman",
+        //                 "currency_code": "NGN",
+        //                 "customer_email": "uju@gmail.com",
+        //                 "bank_name": "Heritage Bank",
+        //                 "bank_code": "030",
+        //                 "account_type": null,
+        //                 "status": "ACTIVE",
+        //                 "created_on": "2021-11-01-19-11-55",
+        //                 "meta": {}
+        //             },
+        //             "client_info": null
+        //         }
+        //     }', true);
+        // }
 
         $apiKey    = $this->getSetting('api_key');
         $apiSecret = $this->getSetting('api_secret');
@@ -96,27 +96,27 @@ class PaygateController
         ];
 
         $payload['transaction'] = [
-            "mock_mode" => $this->getSetting('application_mode') == 'development' ? "Mock" : "Live",
+            "mock_mode" => $this->getSetting('application_mode') == 'development' ? "Inspect" : "Live",
             "transaction_ref" => $requestRef,
             "transaction_desc" => "Biopharma Generated",
             "transaction_ref_parent" => null,
-            "amount" => 1000,
+            "amount" => 0,
             "customer" => [
-                "customer_ref" => "2348033000989",
-                "firstname" => "John",
-                "surname" => "Doe",
-                "email" => "john@doe.com",
-                "mobile_no" => "2348033000989"
+                "customer_ref" => $payload['phone'] ?? '',
+                "firstname" => $payload['firstname'],
+                "surname" => $payload['surname'] ?? '',
+                "email" => $payload['email'],
+                "mobile_no" => $payload['phone'] ?? ''
             ],
             "meta" => [
                 "a_key" => $this->getSetting('api_key'),
                 "b_key" => $this->getSetting('secret_key')
             ],
             "details" =>[
-                "name_on_account" => "John J. Doe",
-                "middlename" => "Jane",
-                "dob" => "2005-05-13",
-                "gender" => "M",
+                "name_on_account" => $payload['firstname'] . ' ' . ($payload['surname'] ?? ''),
+                "middlename" => $payload['firstname'] ?? '',
+                "dob" => isset($payload['dob']) ? Carbon::parse($payload['dob'])->format('Y-m-d') : null,
+                "gender" => isset($payload['gender']) ? ucfirst(substr($payload['gender'], 0, 1)) : 'M',
                 "title" => ucfirst($payload['title']),
                 "address_line_1" => $payload['address_line_1'],
                 "address_line_2" => $payload['address_line_2'],
@@ -126,18 +126,21 @@ class PaygateController
             ],
         ];
 
-        
         $response = wp_remote_post($url, [
             'headers' => $headers,
             'body'    => json_encode($payload),
             'timeout' => 20,
         ]);
 
+        error_log("PayGate Payload: " . json_encode($payload, JSON_PRETTY_PRINT));
+        error_log("PayGate Payload: " . $response);
+
         if (is_wp_error($response)) {
             return $response;
         }
 
         $body = json_decode(wp_remote_retrieve_body($response), true);
+
         return $body;
     }
 }

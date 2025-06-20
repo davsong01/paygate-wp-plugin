@@ -12,3 +12,4 @@ add_action('wp_ajax_paygate_delete_customer', [$controller, 'deleteCustomer']);
 add_action('wp_ajax_paygate_update_customer', [$controller, 'updateCustomer']);
 add_action('wp_ajax_paygate_get_countries', [$controller, 'getCountries']);
 add_action('wp_ajax_paygate_get_states_by_country', [$controller, 'getStatesByCountry']);
+add_action('wp_ajax_paygate_generate_account_number', [$controller, 'generateAccountNumber']);

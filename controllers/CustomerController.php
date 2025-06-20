@@ -50,7 +50,9 @@ class CustomerController {
             'state_id'  => sanitize_text_field($_POST['state_id']),
             'country_id'  => sanitize_text_field($_POST['country_id']),
 
-            'name'    => sanitize_text_field($_POST['name']),
+            'firstname'    => sanitize_text_field($_POST['firstname']),
+            'surname'    => sanitize_text_field($_POST['surname']),
+            'middlename'    => sanitize_text_field($_POST['middlename']),
             'email'   => $email,
             'phone'   => sanitize_text_field($_POST['phone']),
             'gender'  => sanitize_text_field($_POST['gender']),
@@ -83,6 +85,82 @@ class CustomerController {
 
         wp_send_json_success(['message' => 'Customer created successfully']);
     }
+
+    public function generateAccountNumber()
+    {
+        wp_error('some');
+        check_ajax_referer('paygate_nonce', 'nonce');
+
+        $customerId = intval($_POST['customer_id']);
+        if (!$customerId) {
+            wp_send_json_error(['message' => 'Invalid customer ID.']);
+        }
+
+        global $wpdb;
+
+        $customersTable = $wpdb->prefix . 'paygate_customers';
+        $statesTable = $wpdb->prefix . 'paygate_states';
+        $countriesTable = $wpdb->prefix . 'paygate_countries';
+        $reservedAccountsTable = $wpdb->prefix . 'paygate_reserved_account_numbers';
+
+        // 1. Fetch customer with joined state and country name
+        $customer = $wpdb->get_row($wpdb->prepare("
+            SELECT c.*, s.name AS state_name, co.name AS country_name
+            FROM $customersTable c
+            LEFT JOIN $statesTable s ON c.state_id = s.id
+            LEFT JOIN $countriesTable co ON c.country_id = co.id
+            WHERE c.id = %d
+        ", $customerId));
+
+        if (!$customer) {
+            wp_send_json_error(['message' => 'Customer not found.']);
+        }
+
+        // 2. Prepare data to send to API
+        $basicData = [
+            'title'           => sanitize_text_field($customer->title),
+            'dob'             => date('Y-m-d', strtotime($customer->dob)),
+            'address_line_1'  => sanitize_text_field($customer->address_line_1),
+            'address_line_2'  => sanitize_text_field($customer->address_line_2),
+            'city'            => sanitize_text_field($customer->city),
+            'state'           => sanitize_text_field($customer->state_name),
+            'country'         => sanitize_text_field($customer->country_name),
+            'name'            => sanitize_text_field($customer->name),
+            'email'           => sanitize_email($customer->email),
+            'phone'           => sanitize_text_field($customer->phone),
+            'gender'          => sanitize_text_field($customer->gender),
+            'created_at'      => current_time('mysql')
+        ];
+
+        // 3. Call Paygate API
+        $paygate = new PaygateController();
+        $apiResponse = $paygate->generateReservedAccount('/v2/transact', $basicData);
+
+        if (is_wp_error($apiResponse)) {
+            wp_send_json_error(['message' => $apiResponse->get_error_message()]);
+        }
+
+        $data = $apiResponse['data'] ?? [];
+
+        // 4. Ensure necessary account fields exist
+        if (empty($data['account_number']) || empty($data['account_name']) || empty($data['bank_name'])) {
+            wp_send_json_error(['message' => 'API did not return valid account details.']);
+        }
+
+        // 5. Save the reserved account to DB
+        $wpdb->insert($reservedAccountsTable, [
+            'customer_id'    => $customerId,
+            'bank_name'      => sanitize_text_field($data['bank_name']),
+            'account_number' => sanitize_text_field($data['account_number']),
+            'account_name'   => sanitize_text_field($data['account_name']),
+            'provider'       => sanitize_text_field($data['provider'] ?? 'Unknown'),
+            'meta'           => maybe_serialize($data),
+            'created_at'     => current_time('mysql')
+        ]);
+
+        wp_send_json_success(['message' => 'Account number generated and saved successfully.']);
+    }
+
 
     public function updateCustomer()
     {
@@ -117,7 +195,9 @@ class CustomerController {
             'state_id'  => sanitize_text_field($_POST['state_id']),
             'country_id'  => sanitize_text_field($_POST['country_id']),
 
-            'name'    => sanitize_text_field($_POST['name']),
+            'firstname'    => sanitize_text_field($_POST['firstname']),
+            'surname'    => sanitize_text_field($_POST['surname']),
+            'middlename'    => sanitize_text_field($_POST['middlename']),
             'email'   => $email,
             'phone'   => sanitize_text_field($_POST['phone']),
             'gender'  => sanitize_text_field($_POST['gender']),
