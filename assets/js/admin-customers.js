@@ -74,6 +74,15 @@ jQuery(function ($) {
                 data: { action: 'paygate_get_customers', nonce: PayGateVars.nonce },
                 dataSrc: res => res.data || []
             },
+            pagingType: 'simple_numbers', // modern look: Previous 1 2 3 Next
+            dom: '<"top"f>rt<"bottom"ip><"clear">',
+            language: {
+                paginate: {
+                    previous: '« Prev',
+                    next: 'Next »'
+                },
+            },
+    
             columns: [
                 {
                     data: null,

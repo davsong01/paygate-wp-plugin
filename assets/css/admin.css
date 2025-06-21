@@ -11,3 +11,49 @@
 .required {
     color:red;
 }
+
+.regular-text.mb-10 {
+    margin-bottom: 40px !important;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    display: inline-block;
+    margin: 0 2px;
+    padding: 6px 12px;
+    background: #f6f7f7;
+    border: 1px solid #ccd0d4;
+    color: #2271b1;
+    border-radius: 3px;
+    text-decoration: none;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #2271b1;
+    color: #fff !important;
+    font-weight: bold;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #f0f0f1;
+    border-color: #2271b1;
+}
+
+#inflowJsonOutput {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: Menlo, Monaco, Consolas, monospace;
+    background: #f6f7f7;
+    border: 1px solid #ccd0d4;
+    padding: 16px;
+    max-height: 400px;
+    overflow: auto;
+    display: block;
+}
+

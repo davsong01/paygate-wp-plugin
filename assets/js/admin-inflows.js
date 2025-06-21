@@ -18,8 +18,26 @@ jQuery(function ($) {
             dataSrc: res => res.data || []
         },
         columns: [
-            { data: 'full_name' },
-            { data: 'transaction_details' },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    const name = row.full_name || '';
+                    const email = row.customer_email || '';
+                    const badge = row.mock_mode === 'live'
+                    ? '<span class="badge bg-success" style="margin-left: 6px;">Live</span>'
+                    : '<span class="badge bg-dark" style="margin-left: 6px;">Mock</span>';
+                    return `
+                        <strong>${name}</strong><br>
+                        <span style="color: #555;">${email}</span><br>${badge} 
+                    `;
+                }
+            },
+            {
+                data: 'transaction_details',
+                render: function (data) {
+                    return data || '';
+                }
+            },
             { data: 'account_number' },
             { data: 'total_amount' },
             { data: 'originator_details' },
@@ -28,7 +46,8 @@ jQuery(function ($) {
             {
                 data: 'raw_dump',
                 render: function (data, type, row) {
-                    return `<button class="btn btn-sm btn-secondary view-json" data-json='${JSON.stringify(data)}'>View</button>`;
+                    const encodedJson = encodeURIComponent(JSON.stringify(data));
+                    return `<button class="button view-json" data-json="${encodedJson}">View</button>`;
                 }
             }
         ]
@@ -40,8 +59,14 @@ jQuery(function ($) {
     });
 
     $(document).on('click', '.view-json', function () {
-        const json = $(this).data('json');
-        $('#inflowJsonOutput').text(JSON.stringify(json, null, 2));
+        const encoded = $(this).data('json');
+        const decoded = decodeURIComponent(encoded);
+        const parsed = JSON.parse(decoded);
+        const formatted = JSON.stringify(parsed, null, 2);
+        $('#inflowJsonOutput').text(formatted);
+        // $('#inflowJsonOutput').text(JSON.stringify(parsed, null, 2));
+        inflowModal.show();
+
         inflowModal.show();
     });
 });

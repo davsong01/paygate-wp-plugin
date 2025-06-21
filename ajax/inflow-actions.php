@@ -35,16 +35,21 @@
         SELECT 
             t.*, 
             CONCAT_WS(' ', c.firstname, c.middlename, c.surname) AS full_name,
-            CONCAT('ID: ', t.id, '<br>Ref: ', t.transaction_ref) AS transaction_details,
-            CONCAT_WS(' | ', JSON_UNQUOTE(JSON_EXTRACT(t.originator_details, '$.originator_account_name')), 
-                                JSON_UNQUOTE(JSON_EXTRACT(t.originator_details, '$.originator_account_number'))) AS originator_details,
-            c.email
+            CONCAT('<strong>Transaction ID:</strong> ', t.transaction_ref, '<br>','<strong>Ref:</strong> ', t.request_ref) AS transaction_details,
+            CONCAT(
+                '<strong>Name:</strong> ', JSON_UNQUOTE(JSON_EXTRACT(t.originator_details, '$.originator_account_name')), '<br>',
+                '<strong>Account:</strong> ', JSON_UNQUOTE(JSON_EXTRACT(t.originator_details, '$.originator_account_number')), '<br>',
+                '<strong>Bank:</strong> ', JSON_UNQUOTE(JSON_EXTRACT(t.originator_details, '$.originator_bank_name'))
+            ) AS originator_details,
+            t.mock_mode,
+            c.email AS customer_email
         FROM {$table} t
         LEFT JOIN {$cust} c ON c.id = t.customer_id
         WHERE {$conditions}
         ORDER BY t.created_at DESC
         LIMIT %d OFFSET %d
     ";
+
 
     $results = $wpdb->get_results($wpdb->prepare($query, $limit, $offset), ARRAY_A);
 
