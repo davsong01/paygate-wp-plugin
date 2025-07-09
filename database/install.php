@@ -12,12 +12,11 @@ class Installer
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         $charset_collate = $wpdb->get_charset_collate();
-
         $tables = [];
 
         // 1. Products Table
         $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_products (
-            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             name VARCHAR(255) NOT NULL,
             slug VARCHAR(255) UNIQUE NOT NULL,
             sku VARCHAR(255) UNIQUE NOT NULL,
@@ -25,142 +24,138 @@ class Installer
             in_stock INT NOT NULL DEFAULT 0,
             status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
         ) $charset_collate;";
 
         // 2. Customers Table
         $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_customers (
-            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             wp_user_id BIGINT UNSIGNED NULL,
             firstname VARCHAR(255),
-            surname VARCHAR(255) NULL,
-            middlename VARCHAR(255) NULL,
-            title VARCHAR(15) NULL,
+            surname VARCHAR(255),
+            middlename VARCHAR(255),
+            title VARCHAR(15),
             email VARCHAR(255),
-            phone VARCHAR(50) NULL,
+            phone VARCHAR(50),
             gender VARCHAR(10),
-            address_line_1 VARCHAR(255) NULL,
-            address_line_2 VARCHAR(255) NULL,
-            dob DATE NULL,
-            country_id BIGINT UNSIGNED NULL,
-            state_id BIGINT UNSIGNED NULL,
-            city VARCHAR(255) NULL,
+            address_line_1 VARCHAR(255),
+            address_line_2 VARCHAR(255),
+            dob DATE,
+            country_id BIGINT UNSIGNED,
+            state_id BIGINT UNSIGNED,
+            city VARCHAR(255),
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
         ) $charset_collate;";
 
         // 3. Transactions Table
         $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_transactions (
-            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            customer_id BIGINT UNSIGNED NULL,
-            request_ref VARCHAR(80) NULL,
-            transaction_ref VARCHAR(80) NULL,
-            request_type VARCHAR(100) NULL,
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            customer_id BIGINT UNSIGNED,
+            request_ref VARCHAR(80),
+            transaction_ref VARCHAR(80),
+            request_type VARCHAR(100),
             status VARCHAR(10) NOT NULL DEFAULT 'pending',
-            raw_dump LONGTEXT NULL,
-            query_dump LONGTEXT NULL,
+            raw_dump LONGTEXT,
+            query_dump LONGTEXT,
             total_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-            account_number VARCHAR(10) NULL,
-            mock_mode VARCHAR(50) NULL,
-            originator_details TEXT (100) NULL,
-
+            account_number VARCHAR(10),
+            mock_mode VARCHAR(50),
+            originator_details TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
             FOREIGN KEY (customer_id) REFERENCES {$wpdb->prefix}paygate_customers(id) ON DELETE CASCADE
         ) $charset_collate;";
 
-        // 5. Reserved Account Numbers Table
+        // 4. Reserved Account Numbers Table
         $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_reserved_account_numbers (
-            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             customer_id BIGINT UNSIGNED NOT NULL,
             bank_name VARCHAR(50) NOT NULL,
-            bank_code VARCHAR(20) NULL,
+            bank_code VARCHAR(20),
             account_number VARCHAR(50) NOT NULL,
             account_name VARCHAR(255) NOT NULL,
             provider VARCHAR(100) NOT NULL,
-            meta LONGTEXT NULL,
+            meta LONGTEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
             FOREIGN KEY (customer_id) REFERENCES {$wpdb->prefix}paygate_customers(id) ON DELETE CASCADE
         ) $charset_collate;";
 
-        // 6. Settings Table (key-value store)
+        // 5. Settings Table
         $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_settings (
-            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             option_key VARCHAR(191) NOT NULL UNIQUE,
-            option_value LONGTEXT NULL,
+            option_value LONGTEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
         ) $charset_collate;";
 
-        // 7. Countries Table
+        // 6. Countries Table
         $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_countries (
-            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             name VARCHAR(255) NOT NULL,
-            code VARCHAR(10) DEFAULT NULL,
-            mobile_code VARCHAR(10) DEFAULT NULL,
-            currency_symbol VARCHAR(10) DEFAULT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            code VARCHAR(10),
+            mobile_code VARCHAR(10),
+            currency_symbol VARCHAR(10),
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
         ) $charset_collate;";
 
-
-        // 8. States Table
+        // 7. States Table
         $tables[] = "CREATE TABLE {$wpdb->prefix}paygate_states (
-            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             country_id BIGINT UNSIGNED NOT NULL,
             name VARCHAR(255) NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
             FOREIGN KEY (country_id) REFERENCES {$wpdb->prefix}paygate_countries(id) ON DELETE CASCADE
         ) $charset_collate;";
 
-
+        // Run all table creations
         foreach ($tables as $sql) {
             dbDelta($sql);
         }
 
+        // Seed countries and states if empty
         $country_table = $wpdb->prefix . 'paygate_countries';
         if ((int) $wpdb->get_var("SELECT COUNT(*) FROM {$country_table}") === 0) {
             self::seedCountriesAndStates();
         }
 
-        // 9. Add 'accountant' role (if not exists)
+        // 8. Create accountant role if it doesn't exist
         if (!get_role('accountant')) {
-            add_role('accountant', 'Accountant', [
-                'read' => true,
-            ]);
+            add_role('accountant', 'Accountant', ['read' => true]);
         }
 
-        // 10. Add custom capability to both accountant and administrator roles
-        $custom_cap = 'manage_paygate';
-
-        // Assign to accountant
-        $accountant_role = get_role('accountant');
-        if ($accountant_role && !$accountant_role->has_cap($custom_cap)) {
-            $accountant_role->add_cap($custom_cap);
+        // 9. Add 'view_paygate' capability to both accountant and administrator
+        $rolesToUpdate = ['accountant', 'administrator'];
+        foreach ($rolesToUpdate as $roleName) {
+            $role = get_role($roleName);
+            if ($role && !$role->has_cap('view_paygate')) {
+                $role->add_cap('view_paygate');
+            }
         }
 
-        // Assign to administrator
-        $admin_role = get_role('administrator');
-        if ($admin_role && !$admin_role->has_cap($custom_cap)) {
-            $admin_role->add_cap($custom_cap);
-        }
-
-        // 11. Create default user with 'accountant' role
+        // 10. Create default accountant user
         if (!username_exists('paygate_accountant') && !email_exists('accountant@biopharma.com')) {
             $user_id = wp_create_user('paygate_accountant', '#&securepassword123', 'accountant@biopharma.com');
             if (!is_wp_error($user_id)) {
-                $user = new WP_User($user_id);
+                $user = new \WP_User($user_id);
                 $user->set_role('accountant');
             }
         }
 
-        // 12 Do settings seeders
+        // 11. Seed additional settings and customers
         self::seedSettings();
-
-        // 13 Do settings seeders
         self::seedCustomers();
     }
+
 
     public static function seedSettings()
     {
@@ -182,11 +177,11 @@ class Installer
             ],
             [
                 'option_key' => 'api_secret',
-                'option_value' => 'weweweweewweew',
+                'option_value' => 'Wui2qX8B7Xm3DFhm',
             ],
             [
                 'option_key' => 'api_key',
-                'option_value' => '12121232323232323',
+                'option_value' => 'VCNtcZScX7GPT61d8djp_eaddf0df24764a5db2bd53f6041199c5',
             ],
             
             [

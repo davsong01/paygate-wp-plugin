@@ -26,4 +26,17 @@ function paygate_plugin_activate()
 {
     require_once __DIR__ . '/database/install.php';
     \PayGate\Database\Installer::install();
+
+    set_transient('_paygate_activation_redirect', true, 30);
 }
+
+add_action('admin_init', function () {
+    if (get_transient('_paygate_activation_redirect')) {
+        delete_transient('_paygate_activation_redirect');
+
+        if (!isset($_GET['activate-multi'])) {
+            wp_safe_redirect(admin_url('admin.php?page=paygate_dashboard'));
+            exit;
+        }
+    }
+});

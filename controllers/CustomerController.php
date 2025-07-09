@@ -18,7 +18,7 @@ class CustomerController {
             SELECT c.*, a.bank_name, a.account_number, a.account_name
             FROM {$customers_table} c
             LEFT JOIN {$accounts_table} a ON a.customer_id = c.id
-            ORDER BY c.id DESC
+            ORDER BY c.created_at DESC
         ");
 
         wp_send_json_success($results);
@@ -75,11 +75,11 @@ class CustomerController {
 
         $wpdb->insert($accounts_table, [
             'customer_id'    => $customer_id,
-            'bank_name'      => $accountDetails['bank_name'] ?? 'Fidelity',
-            'account_number' => $accountDetails['account_number'],
-            'account_name'   => $accountDetails['account_name'],
+            'bank_name'      => $data['bank_name'] ?? 'Fidelity',
+            'account_number' => $data['account_number'],
+            'account_name'   => $data['account_name'],
             'provider'       => 'paygateplus',
-            'meta'           => maybe_serialize($accountDetails),
+            'meta'           => maybe_serialize($data),
             'created_at'     => current_time('mysql')
         ]);
 

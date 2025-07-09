@@ -16,27 +16,18 @@ class MenuRegistrar
         add_menu_page(
             'PayGate Dashboard',
             'PayGate',
-            'manage_options',
+            'view_paygate',
             'paygate_dashboard',
             [$this, 'renderDashboard'],
             'dashicons-cart',
             56
         );
 
-        // add_submenu_page(
-        //     'paygate_dashboard',
-        //     'Products',
-        //     'Products',
-        //     'manage_options',
-        //     'paygate_products',
-        //     [$this, 'renderProducts']
-        // );
-
         add_submenu_page(
             'paygate_dashboard',
             'Customers',
             'Customers',
-            'manage_options',
+            'view_paygate',
             'paygate_customers',
             [$this, 'renderCustomers']
         );
@@ -45,22 +36,24 @@ class MenuRegistrar
             'paygate_dashboard',
             'Inflows',
             'Inflows',
-            'manage_options',
+            'view_paygate',
             'paygate_inflows',
             [$this, 'renderInflows']
         );
 
 
-        add_submenu_page(
-            'paygate_dashboard',
-            'Settings',
-            'Settings',
-            'manage_options',
-            'paygate_settings',
-            function () {
-                (new \controllers\SettingsController())->render();
-            }
-        );
+        if (current_user_can('administrator')) {
+            add_submenu_page(
+                'paygate_dashboard',
+                'Settings',
+                'Settings',
+                'view_paygate',
+                'paygate_settings',
+                function () {
+                    (new \controllers\SettingsController())->render();
+                }
+            );
+        }
     }
 
     public function renderDashboard()

@@ -103,9 +103,9 @@ class PaygateController
             'timeout' => 20,
         ]);
 
-        error_log("PayGate Payload: " . json_encode($payloadX, JSON_PRETTY_PRINT));
-        error_log("PayGate Header: " . json_encode($headers, JSON_PRETTY_PRINT));
-        error_log("PayGate Payload: " . json_encode($response));
+        // error_log("PayGate Payload: " . json_encode($payloadX, JSON_PRETTY_PRINT));
+        // error_log("PayGate Header: " . json_encode($headers, JSON_PRETTY_PRINT));
+        // error_log("PayGate Payload: " . json_encode($response));
 
         if (is_wp_error($response)) {
             return $response;

@@ -74,8 +74,9 @@ jQuery(function ($) {
                 data: { action: 'paygate_get_customers', nonce: PayGateVars.nonce },
                 dataSrc: res => res.data || []
             },
-            pagingType: 'simple_numbers', // modern look: Previous 1 2 3 Next
+            pagingType: 'simple_numbers', 
             dom: '<"top"f>rt<"bottom"ip><"clear">',
+            ordering: false,
             language: {
                 paginate: {
                     previous: '« Prev',
@@ -199,11 +200,19 @@ jQuery(function ($) {
         // Submit Customer Form
         $customerForm.on('submit', function (e) {
             e.preventDefault();
+            const $form = $(this);
+            const $submitBtn = $form.find('button[type="submit"]'); // ← Dynamic, safe for multiple forms
             const data = Object.fromEntries(new FormData(this).entries());
             const isUpdate = !!data.id;
 
             data.action = isUpdate ? 'paygate_update_customer' : 'paygate_save_customer';
             data.nonce = PayGateVars.nonce;
+
+            const originalHTML = $submitBtn.html();
+            $submitBtn.html(`
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                ${isUpdate ? 'Updating...' : 'Saving...'}
+            `);
 
             $.post(PayGateVars.ajax_url, data)
                 .done((res) => {
@@ -219,29 +228,6 @@ jQuery(function ($) {
                 });
         });
 
-        // $(document).on('click', '.generate-account-btn', function () {
-        //     const customerId = $(this).data('id');
-        
-        //     if (!customerId) return;
-        
-        //     $.post(PayGateVars.ajax_url, {
-        //         action: 'paygate_generate_account_number',
-        //         nonce: PayGateVars.nonce,
-        //         customer_id: customerId
-        //     })
-        //     .done(res => {
-        //         if (res.success) {
-        //             showAlert('success', res.data.message || 'Account generated successfully.');
-        //             $('#customersTable').DataTable().ajax.reload(null, false);
-        //         } else {
-        //             showAlert('danger', res.data.message || 'Failed to generate account.');
-        //         }
-        //     })
-        //     .fail(err => {
-        //         console.error(err);
-        //         showAlert('danger', 'An unexpected error occurred.');
-        //     });
-        // });
         $(document).on('click', '.generate-account-btn', function () {
             const $btn = $(this);
             const customerId = $btn.data('id');
