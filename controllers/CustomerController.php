@@ -64,14 +64,13 @@ class CustomerController {
 
 
         $paygate = new PaygateController();
-        
-        $apiResponse = $paygate->generateReservedAccount('/v2/transact', $basicData);
 
-        if (!$apiResponse['success'] || empty($apiResponse['data']['data']['account_number'])) {
+        $apiResponse = $paygate->generateReservedAccount('/v2/transact', $basicData);
+        $data = $apiResponse['data']['provider_response'] ?? [];
+
+        if (empty($data['account_number']) || empty($data['account_name']) || empty($data['bank_name'])) {
             wp_send_json_error(['message' => 'Customer created, but failed to get virtual account.']);
         }
-
-        $accountDetails = $apiResponse['data']['data'];
 
 
         $wpdb->insert($accounts_table, [
