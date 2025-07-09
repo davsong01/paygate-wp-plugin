@@ -219,10 +219,37 @@ jQuery(function ($) {
                 });
         });
 
+        // $(document).on('click', '.generate-account-btn', function () {
+        //     const customerId = $(this).data('id');
+        
+        //     if (!customerId) return;
+        
+        //     $.post(PayGateVars.ajax_url, {
+        //         action: 'paygate_generate_account_number',
+        //         nonce: PayGateVars.nonce,
+        //         customer_id: customerId
+        //     })
+        //     .done(res => {
+        //         if (res.success) {
+        //             showAlert('success', res.data.message || 'Account generated successfully.');
+        //             $('#customersTable').DataTable().ajax.reload(null, false);
+        //         } else {
+        //             showAlert('danger', res.data.message || 'Failed to generate account.');
+        //         }
+        //     })
+        //     .fail(err => {
+        //         console.error(err);
+        //         showAlert('danger', 'An unexpected error occurred.');
+        //     });
+        // });
         $(document).on('click', '.generate-account-btn', function () {
-            const customerId = $(this).data('id');
+            const $btn = $(this);
+            const customerId = $btn.data('id');
         
             if (!customerId) return;
+        
+            const originalHTML = $btn.html();
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Generating...');
         
             $.post(PayGateVars.ajax_url, {
                 action: 'paygate_generate_account_number',
@@ -240,8 +267,12 @@ jQuery(function ($) {
             .fail(err => {
                 console.error(err);
                 showAlert('danger', 'An unexpected error occurred.');
+            })
+            .always(() => {
+                $btn.prop('disabled', false).html(originalHTML);
             });
         });
+        
         
     }
 });

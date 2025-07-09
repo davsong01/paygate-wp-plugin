@@ -142,9 +142,8 @@ class CustomerController {
             wp_send_json_error(['message' => $apiResponse->get_error_message()]);
         }
 
-        $data = $apiResponse['data'] ?? [];
+        $data = $apiResponse['data']['provider_response'] ?? [];
 
-        // 4. Ensure necessary account fields exist
         if (empty($data['account_number']) || empty($data['account_name']) || empty($data['bank_name'])) {
             wp_send_json_error(['message' => 'API did not return valid account details.']);
         }
