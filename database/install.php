@@ -153,7 +153,7 @@ class Installer
 
         // 11. Seed additional settings and customers
         self::seedSettings();
-        self::seedCustomers();
+        // self::seedCustomers();
     }
 
 
