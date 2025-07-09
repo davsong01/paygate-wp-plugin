@@ -35,6 +35,19 @@ class Loader
         add_action('admin_post_paygate_save_settings', [new \controllers\SettingsController(), 'save']);
     }
 
+    public function restrictAccess()
+    {
+        add_action('admin_init', function () {
+            if (
+                is_admin() &&
+                isset($_GET['page']) &&
+                strpos($_GET['page'], 'paygate') !== false &&
+                !current_user_can('view_paygate')
+            ) {
+                wp_die('You do not have sufficient permissions to access this page.');
+            }
+        });
+    }
 
     public function enqueueAssets()
     {
@@ -61,19 +74,5 @@ class Loader
         wp_localize_script('paygate-admin-products-js', 'PayGateVars', $vars);
         wp_localize_script('paygate-admin-customers-js', 'PayGateVars', $vars);
         wp_localize_script('paygate-admin-inflows-js', 'PayGateVars', $vars);
-    }
-
-    public function restrictAccess()
-    {
-        add_action('admin_init', function () {
-            if (
-                is_admin() &&
-                isset($_GET['page']) &&
-                strpos($_GET['page'], 'paygate') !== false &&
-                !current_user_can('manage_paygate')
-            ) {
-                wp_die('You do not have sufficient permissions to access this page.');
-            }
-        });
     }
 }
