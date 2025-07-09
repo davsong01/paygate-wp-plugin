@@ -143,8 +143,8 @@ class Installer
         }
 
         // 10. Create default accountant user
-        if (!username_exists('paygate_accountant') && !email_exists('accountant@biopharma.com')) {
-            $user_id = wp_create_user('paygate_accountant', '#&securepassword123', 'accountant@biopharma.com');
+        if (!username_exists('paygate_accountant') && !email_exists('accountant@bpn.ng')) {
+            $user_id = wp_create_user('paygate_accountant', '#&securepassword123', 'accountant@bpn.ng');
             if (!is_wp_error($user_id)) {
                 $user = new \WP_User($user_id);
                 $user->set_role('accountant');
