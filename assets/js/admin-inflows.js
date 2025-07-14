@@ -23,7 +23,7 @@ jQuery(function ($) {
                 render: function (data, type, row) {
                     const name = row.full_name || '';
                     const email = row.customer_email || '';
-                    const badge = row.mock_mode === 'live'
+                    const badge = row.mock_mode === 'Live'
                     ? '<span class="badge bg-success" style="margin-left: 6px;">Live</span>'
                     : '<span class="badge bg-dark" style="margin-left: 6px;">Mock</span>';
                     return `
